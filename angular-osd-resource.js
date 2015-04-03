@@ -1,88 +1,127 @@
 (function () {
 
-    var osdResource = angular.module('osdResource', []);
+    var osdResource = angular.module('osdResource', [
+        'ngLodash'
+    ]);
 
     /*
-      Creates a default resource. Generally, we would decorate this with a service that
-      handles data returned from an API (for example, we could decorate this with a
-      cache decorator). Each resource is built using a resourceConfig constant.
+     Creates a default resource. Generally, we would decorate this with a service that
+     handles data returned from an API (for example, we could decorate this with a
+     cache decorator). Each resource is built using a resourceConfig constant.
      */
     function createResource(config) {
         return function ($resource) {
+            var self = this;
 
-            var resource = $resource(config.route, {id: '@id'}, {
+            self.config = config;
+
+            self.resource = $resource(config.route, {id: '@id'}, {
                 query: {method: 'GET', isArray: false},
                 update: {method: 'PUT'}
             });
 
-            return {
-                save: function (data) {
-                    return resource.save(data).$promise;
-                },
-
-                update: function (data) {
-                    return resource.update(data).$promise;
-                },
-
-                get: function (params) {
-                    return resource.get(params).$promise;
-                },
-
-                query: function (params) {
-                    return resource.query(params).$promise;
-                },
-
-                delete: function (id) {
-                    return resource.delete({id: id}).$promise;
-                },
+            self.save = function (data) {
+                return self.resource.save(data).$promise;
             };
+
+            self.update = function (data) {
+                return self.resource.update(data).$promise;
+            };
+
+            self.get = function (params) {
+                return self.resource.get(params).$promise;
+            };
+
+            self.query = function (params) {
+                return self.resource.query(params).$promise;
+            };
+
+            self.delete = function (id) {
+                return self.resource.delete({id: id}).$promise;
+            };
+
+            return self;
         };
     }
 
-    // @ngInject
-    function cacheDecorator($delegate, $q) {
+    /*
+       A single cache decorator is used to cache data for all resources. Each resource caches its
+       data in self.caches[<resource name>].
+
+      @ngInject
+     */
+    function cacheDecorator($delegate, lodash) {
         var self = this;
 
-        self.get = {
-            cached: false,
-            params: null,
-            deferred: null,
-        };
+        self.caches = {};
 
-        self.query = {
-            cached: false,
-            params: null,
-            deferred: null,
-        };
+        function initResourceCache($delegate) {
+            self.caches[$delegate.config.name] = {
+                get: {
+                    cached: false,
+                    params: null,
+                    data: null
+                },
+                query: {
+                    cached: false,
+                    params: null,
+                    data: null
+                }
+            };
+
+            return self.caches[$delegate.config.name];
+        }
 
         /*
          If not forced, cached is true and the query params are the same
          return the cached data, otherwise make the API call.
          */
         function getCachedCall(call, params, forced) {
-            if (!forced && self[call].cached && params === self[call].params) {
-                return self[call].deferred.promise;
+            var currentCache = self.caches[$delegate.config.name];
+
+            if (!currentCache) {
+                currentCache = initResourceCache($delegate);
             }
 
-            self[call].deferred = $q.defer();
+            if (!forced && currentCache[call].cached && lodash.isEqual(params, currentCache[call].params)) {
+                return currentCache[call].data;
+            }
 
-            // This is the decorated call
-            $delegate[call](params)
-                .then(function(response) {
-                    self[call].deferred.resolve(response);
+            /*
+             Here we cache the results and set flags for the next
+             time the resource method is called.
+             */
+            currentCache[call].cached = true;
+            currentCache[call].params = params;
+
+            /*
+              This is the decorated call.
+             */
+            var promisedResponse = $delegate[call](params)
+                .then(function (response) {
+                    return response;
                 });
 
-            self[call].cached = true;
-            self[call].params = params;
+            currentCache[call].data = promisedResponse;
 
-            return self[call].deferred.promise;
+            return promisedResponse;
         }
 
+        /*
+         On save or update, we invalidate the cache. This prevents us
+         from returning outdated data on a later call.
+         */
         function clearCachedCall(call, data) {
-                get.cached = false;
-                query.cached = false;
+            var currentCache = self.caches[$delegate.config.name];
 
-                return $delegate[call](data);
+            if (!currentCache) {
+                initResourceCache($delegate);
+            }
+
+            currentCache.get.cached = false;
+            currentCache.query.cached = false;
+
+            return $delegate[call](data);
         }
 
         return {
@@ -109,39 +148,39 @@
             // Call the parent delete function and invalidate cache
             delete: function (data) {
                 return clearCachedCall('delete', data);
-            },
+            }
         };
     }
 
     /*
-      This provider allows separate modules to configure the resource
-      generator.
+     This provider allows separate modules to configure the resource
+     generator.
      */
-    osdResource.provider('ResourceConfig', function() {
+    osdResource.provider('ResourceConfig', function () {
         var config = [];
 
         return {
-            config: function(value) {
+            config: function (value) {
                 config = value;
             },
 
-            $get: function() {
+            $get: function () {
                 return config;
-            },
+            }
         };
     });
 
     /*
-      Bind the $provide provider to the module so that it can be used
-      during the angular.run phase. Resource creation needs to happen in the
-      angular.run phase because configuration isn't available before then.
+     Bind $provide to the module so that it can be used
+     during the angular.run phase. Resource creation needs to happen in the
+     angular.run phase because configuration isn't available before then.
 
      @ngInject
      */
-    osdResource.config(function($provide) {
+    osdResource.config(function ($provide) {
         osdResource.register = {
             factory: $provide.factory,
-            decorator: $provide.decorator,
+            decorator: $provide.decorator
         };
     });
 
@@ -150,17 +189,17 @@
      create resources and adding decorators if specified.
 
      @ngInject
-    */
-    osdResource.run(function(ResourceConfig) {
+     */
+    osdResource.run(function (ResourceConfig) {
         ResourceConfig.forEach(function (config) {
             osdResource.register.factory(config.name, ['$resource', createResource(config)]);
 
-            config.decorators.forEach(function(decorator) {
+            config.decorators.forEach(function (decorator) {
                 if (decorator == 'cache') {
                     osdResource.register.decorator(config.name, cacheDecorator);
                 }
             });
         });
     });
-})();
-
+})
+();

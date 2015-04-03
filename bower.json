@@ -1,0 +1,20 @@
+{
+  "name": "angular-osd-resource",
+  "main": "angular-osd-resource.js",
+  "version": "0.0.1",
+  "homepage": "https://github.com/Osedea/angular-osd-resource",
+  "authors": [
+    "Angus <donald.macisaac@mail.mcgill.ca>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "ng-lodash": "~0.2.0"
+  }
+}

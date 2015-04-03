@@ -8,10 +8,11 @@ var isTravis = process.env.TRAVIS || false;
 
 var paths = {
     js: [
+        './bower_components/angular/angular.js',
+        './bower_components/ng-lodash/build/ng-lodash.js',
         './angular-osd-resource.js',
     ],
     test: [
-        'node_modules/angular/angular.js',
         'node_modules/angular-mocks/angular-mocks.js',
         'angular-osd-resource.js',
         './test/**/*.js',
