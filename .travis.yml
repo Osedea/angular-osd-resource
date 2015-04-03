@@ -1,0 +1,10 @@
+language: node_js
+node_js:
+  - 0.12
+script: gulp test
+before_script:
+  - npm install -g gulp
+  - npm install -g karma
+  - npm install phantomjs
+  - npm install
+  - gulp build
