@@ -15,10 +15,12 @@
 
             self.config = config;
 
-            self.resource = $resource(config.route, {id: '@id'}, {
+            var customResources = {
                 query: {method: 'GET', isArray: false},
                 update: {method: 'PUT'}
-            });
+            };
+
+            self.resource = $resource(config.route, {id: '@id'}, customResources);
 
             self.save = function (data) {
                 return self.resource.save(data).$promise;
