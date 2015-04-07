@@ -3,7 +3,7 @@
 This module provides an easy way to create and decorate angular $resource services from a config file. This module was created with two goals: consistent API services and avoiding boilerplate.
 
 ### Version
-0.0.1
+0.0.6
 
 ### Installation and Setup
 
