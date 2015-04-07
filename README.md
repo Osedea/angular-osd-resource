@@ -38,17 +38,17 @@ All of your resources can be generated from a single configuration file. Here's 
 
     // @ngInject
     function resourceConfig(ResourceConfigProvider) {
-        ResourceConfigProvider.config([
-            {
-                route: '/api/documents/:id',
-                name: 'Document',
-            },
-            {
-                route: '/api/forms/:id',
-                name: 'Form',
-                decorators: ['cache'],
-            },
-        ]);
+        ResourceConfigProvider
+            .add('Document', '/api/documents/:id', {
+                decorators: [
+                    'cache'
+                ],
+            })
+            .add('Form', '/api/forms/:id', {
+                decorators: [
+                    'cache'
+                ],
+            });
     }
 
     chaya.config(resourceConfig);
@@ -79,8 +79,7 @@ return {
     }
 };
 ```
-
-**Note: ** Each resource method returns a `$promise`, therefore it needs to be handled using Angular's `$promise` API.
+*Note: * Each resource method returns a `$promise`, therefore it needs to be handled using Angular's `$promise` API.
 
 ### How To Use Them
 

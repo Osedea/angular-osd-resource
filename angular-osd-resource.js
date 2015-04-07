@@ -47,10 +47,10 @@
     }
 
     /*
-       A single cache decorator is used to cache data for all resources. Each resource caches its
-       data in self.caches[<resource name>].
+     A single cache decorator is used to cache data for all resources. Each resource caches its
+     data in self.caches[<resource name>].
 
-      @ngInject
+     @ngInject
      */
     function cacheDecorator($delegate, lodash) {
         var self = this;
@@ -97,7 +97,7 @@
             currentCache[call].params = params;
 
             /*
-              This is the decorated call.
+             This is the decorated call.
              */
             var promisedResponse = $delegate[call](params)
                 .then(function (response) {
@@ -159,17 +159,23 @@
      generator.
      */
     osdResource.provider('ResourceConfig', function () {
+        var self = this;
         var config = [];
 
-        return {
-            config: function (value) {
-                config = value;
-            },
+        self.add = function (name, route, data) {
+            data.name = name;
+            data.route = route;
 
-            $get: function () {
-                return config;
-            }
+            config.push(data);
+
+            return self;
         };
+
+        self.$get = function () {
+            return config;
+        };
+
+        return self;
     });
 
     /*
