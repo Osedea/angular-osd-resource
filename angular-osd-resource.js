@@ -117,7 +117,7 @@
             var currentCache = self.caches[$delegate.config.name];
 
             if (!currentCache) {
-                initResourceCache($delegate);
+                currentCache = initResourceCache($delegate);
             }
 
             currentCache.get.cached = false;
