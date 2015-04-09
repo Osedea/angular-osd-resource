@@ -51,7 +51,7 @@ All of your resources can be generated from a single configuration file. Here's 
             });
     }
 
-    chaya.config(resourceConfig);
+    app.config(resourceConfig);
 })();
 ```
 
