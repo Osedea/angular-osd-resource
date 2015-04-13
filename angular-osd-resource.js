@@ -119,8 +119,9 @@
      @ngInject
      */
     function CacheDecorator($delegate, lodash) {
-        var self = this;
-        self.caches = {};
+        var self = {
+            caches: {}
+        };
 
         function initResourceCache() {
             self.caches[$delegate.config.name] = {
