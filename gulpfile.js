@@ -8,7 +8,6 @@ var gulp = require('gulp'),
 
 var paths = {
     js: [
-        'bower_components/ng-lodash/build/ng-lodash.js',
         'src/app.js',
         'src/decorators/**/*.js',
         'src/angular-osd-resource.js',
