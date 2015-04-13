@@ -9786,7 +9786,7 @@ angular.module('ngLodash', []).constant('lodash', null).config([
     ]);
 })();
 
-(function() {
+(function () {
 
     'use strict';
 
@@ -9796,12 +9796,11 @@ angular.module('ngLodash', []).constant('lodash', null).config([
 
      @ngInject
      */
-    function cacheDecorator($delegate, lodash) {
+    function CacheDecorator($delegate, lodash) {
         var self = this;
-
         self.caches = {};
 
-        function initResourceCache($delegate) {
+        function initResourceCache() {
             self.caches[$delegate.config.name] = {
                 get: {
                     cached: false,
@@ -9826,7 +9825,7 @@ angular.module('ngLodash', []).constant('lodash', null).config([
             var currentCache = self.caches[$delegate.config.name];
 
             if (!currentCache) {
-                currentCache = initResourceCache($delegate);
+                currentCache = initResourceCache();
             }
 
             if (!forced && currentCache[call].cached && lodash.isEqual(params, currentCache[call].params)) {
@@ -9861,7 +9860,7 @@ angular.module('ngLodash', []).constant('lodash', null).config([
             var currentCache = self.caches[$delegate.config.name];
 
             if (!currentCache) {
-                currentCache = initResourceCache($delegate);
+                currentCache = initResourceCache();
             }
 
             currentCache.get.cached = false;
@@ -9897,10 +9896,6 @@ angular.module('ngLodash', []).constant('lodash', null).config([
             }
         };
     }
-
-
-    angular.module('osdResource')
-        .service('cacheDecorator', cacheDecorator);
 })();
 
 (function () {
@@ -9999,16 +9994,15 @@ angular.module('ngLodash', []).constant('lodash', null).config([
 
      @ngInject
      */
-    osdResource.run(function (ResourceConfig, CacheDecorator) {
+    osdResource.run(function (ResourceConfig) {
         ResourceConfig.forEach(function (config) {
             osdResource.register.factory(config.name, ['$resource', createResource(config)]);
 
             config.decorators.forEach(function (decorator) {
                 if (decorator == 'cache') {
-                    osdResource.register.decorator(config.name, CacheDecoratorProvider);
+                    osdResource.register.decorator(config.name, CacheDecorator);
                 }
             });
         });
     });
-})
-();
+})();
