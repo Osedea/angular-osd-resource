@@ -89,20 +89,13 @@
     });
 
     /*
-     Loop through each resource defined in resourceConfig,
-     create resources and adding decorators if specified.
+     Loop through each resource defined in ResourceConfig and create resource.
 
      @ngInject
      */
     osdResource.run(function (ResourceConfig) {
         ResourceConfig.forEach(function (config) {
             osdResource.register.factory(config.name, ['$resource', createResource(config)]);
-
-            config.decorators.forEach(function (decorator) {
-                if (decorator == 'cache') {
-                    osdResource.register.decorator(config.name, CacheDecorator);
-                }
-            });
         });
     });
 })();

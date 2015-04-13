@@ -2,6 +2,8 @@
 
     'use strict';
 
+    var osdResource = angular.module('osdResource');
+
     /*
      A single cache decorator is used to cache data for all resources. Each resource caches its
      data in self.caches[<resource name>].
@@ -108,4 +110,20 @@
             }
         };
     }
+
+
+    /*
+     Loop through each resource defined in ResourceConfig, adding decorator if specified.
+
+     @ngInject
+     */
+    osdResource.run(function (ResourceConfig) {
+        ResourceConfig.forEach(function (config) {
+            config.decorators.forEach(function (decorator) {
+                if (decorator == 'cache') {
+                    osdResource.register.decorator(config.name, CacheDecorator);
+                }
+            });
+        });
+    });
 })();
