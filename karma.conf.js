@@ -13,9 +13,11 @@ module.exports = function (config) {
 
         // list of files / patterns to load in the browser
         files: [
+            './bower_components/angular/angular.js',
             'node_modules/karma-phantomjs-launcher/index.js',
+            'node_modules/angular-mocks/angular-mocks.js',
             'angular-osd-resource.js',
-            'test/**/*.js'
+            './test/**/*.js',
         ],
 
         // list of files to exclude
