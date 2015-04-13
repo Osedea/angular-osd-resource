@@ -9,16 +9,16 @@ var gulp = require('gulp'),
 var paths = {
     js: [
         'src/app.js',
-        'src/decorators/**/*.js',
         'src/angular-osd-resource.js',
+        'src/decorators/**/*.js',
     ],
     test: [
         'bower_components/angular/angular.js',
         'bower_components/ng-lodash/build/ng-lodash.js',
         'node_modules/angular-mocks/angular-mocks.js',
         'src/app.js',
-        'src/decorators/**/*.js',
         'src/angular-osd-resource.js',
+        'src/decorators/**/*.js',
         'test/**/*.js',
     ]
 };
