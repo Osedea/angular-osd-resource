@@ -11,9 +11,22 @@
      @ngInject
      */
     function CacheDecorator($delegate, lodash) {
+        var decorator = {};
+
         var self = {
-            caches:  {},
+            caches: {}
         };
+
+        var cachedCalls = [
+            'get',
+            'query',
+        ];
+
+        var cacheClearingCalls = [
+            'save',
+            'update',
+            'delete',
+        ];
 
         function initResourceCache() {
             self.caches[$delegate.config.name] = {
@@ -33,10 +46,10 @@
         }
 
         /*
-         If not forced, cached is true and the query params are the same
-         return the cached data, otherwise make the API call.
+         If not forced, cached is true, and the query params are the same,
+         return the cached data; otherwise make the API call.
          */
-        function getCachedCall(call, params, forced) {
+        function makeCachedCall(call, params, forced) {
             var currentCache = self.caches[$delegate.config.name];
 
             if (!currentCache) {
@@ -71,7 +84,7 @@
          On save or update, we invalidate the cache. This prevents us
          from returning outdated data on a later call.
          */
-        function clearCachedCall(call, data) {
+        function makeCacheClearingCall(call, data) {
             var currentCache = self.caches[$delegate.config.name];
 
             if (!currentCache) {
@@ -84,37 +97,28 @@
             return $delegate[call](data);
         }
 
-        return {
-            // Call the parent save function and invalidate cache
-            save: function (data) {
-                return clearCachedCall('save', data);
-            },
+        // Give the decorator all methods that the delegated resource has
+        angular.extend(decorator, $delegate);
 
-            // Call the parent update function and invalidate cache
-            update: function (data) {
-                return clearCachedCall('update', data);
-            },
+        // Create decorator methods for all calls that require caching
+        cachedCalls.forEach(function (call) {
+            decorator[call] = function (params, forced) {
+                return makeCachedCall(call, params, forced);
+            };
+        });
 
-            // Get possibly cached data
-            get: function (params, forced) {
-                return getCachedCall('get', params, forced);
-            },
+        // Create decorator methods for all calls that invalidate cache
+        cacheClearingCalls.forEach(function (call) {
+            decorator[call] = function (data) {
+                return makeCacheClearingCall(call, data);
+            };
+        });
 
-            // Query possibly cached data
-            query: function (params, forced) {
-                return getCachedCall('query', params, forced);
-            },
-
-            // Call the parent delete function and invalidate cache
-            delete: function (data) {
-                return clearCachedCall('delete', data);
-            }
-        };
+        return decorator;
     }
 
-
     /*
-     Loop through each resource defined in ResourceConfig, adding decorator if specified.
+     Loop through each resource defined in ResourceConfig, adding cache decorator if specified.
 
      @ngInject
      */

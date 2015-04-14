@@ -7,22 +7,31 @@
     /*
      Creates a default resource. Generally, we would decorate this with a service that
      handles data returned from an API (for example, we could decorate this with a
-     cache decorator). Each resource is built using the ResourceConfig service.
+     cache decorator). Each resource is built using the ResourceConfig provider.
      */
     function createResource(config) {
         return function ($resource) {
             var self = this;
 
             self.config = config;
+            self.config.methods = self.config.methods || {};
 
             var resourceMethods = {
                 query: {method: 'GET', isArray: false},
                 update: {method: 'PUT'}
             };
 
+            // Add extra methods
             angular.extend(resourceMethods, config.methods);
 
             self.resource = $resource(config.route, {id: '@id'}, resourceMethods);
+
+            // Create a method on the service for each config method provided
+            Object.keys(config.methods).forEach(function (key) {
+                self[key] = function (data) {
+                    return self.resource[key](data).$promise;
+                }
+            });
 
             self.save = function (data) {
                 return self.resource.save(data).$promise;
@@ -49,20 +58,36 @@
     }
 
     /*
-     This provider allows separate modules to configure the resource
-     generator.
+     A provider for separate modules to configure the resource generator.
 
      @ngInject
      */
     osdResource.provider('ResourceConfig', function () {
         var self = this;
         var config = [];
+        var global = {
+            decorators: [],
+            methods: {}
+        };
 
         self.add = function (name, route, data) {
+            data = data || {};
             data.name = name;
             data.route = route;
+            data.decorators = data.decorators || [];
+            data.methods = data.methods || {};
+
+            // Add global values to config
+            data.decorators = data.decorators.concat(global.decorators);
+            angular.extend(data.methods, global.methods);
 
             config.push(data);
+
+            return self;
+        };
+
+        self.global = function(data) {
+            global = data;
 
             return self;
         };
@@ -75,9 +100,9 @@
     });
 
     /*
-     Bind $provide to the module so that it can be used
-     during the angular.run phase. Resource creation needs to happen in the
-     angular.run phase because configuration isn't available before then.
+     Bind $provide to the module so that it can be used during the angular.run phase.
+     Resource creation needs to happen in the angular.run phase because configuration
+     from other modules isn't available before then.
 
      @ngInject
      */

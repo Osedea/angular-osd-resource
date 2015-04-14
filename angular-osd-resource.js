@@ -13,22 +13,31 @@
     /*
      Creates a default resource. Generally, we would decorate this with a service that
      handles data returned from an API (for example, we could decorate this with a
-     cache decorator). Each resource is built using the ResourceConfig service.
+     cache decorator). Each resource is built using the ResourceConfig provider.
      */
     function createResource(config) {
         return function ($resource) {
             var self = this;
 
             self.config = config;
+            self.config.methods = self.config.methods || {};
 
             var resourceMethods = {
                 query: {method: 'GET', isArray: false},
                 update: {method: 'PUT'}
             };
 
+            // Add extra methods
             angular.extend(resourceMethods, config.methods);
 
             self.resource = $resource(config.route, {id: '@id'}, resourceMethods);
+
+            // Create a method on the service for each config method provided
+            Object.keys(config.methods).forEach(function (key) {
+                self[key] = function (data) {
+                    return self.resource[key](data).$promise;
+                }
+            });
 
             self.save = function (data) {
                 return self.resource.save(data).$promise;
@@ -55,20 +64,36 @@
     }
 
     /*
-     This provider allows separate modules to configure the resource
-     generator.
+     A provider for separate modules to configure the resource generator.
 
      @ngInject
      */
     osdResource.provider('ResourceConfig', function () {
         var self = this;
         var config = [];
+        var global = {
+            decorators: [],
+            methods: {}
+        };
 
         self.add = function (name, route, data) {
+            data = data || {};
             data.name = name;
             data.route = route;
+            data.decorators = data.decorators || [];
+            data.methods = data.methods || {};
+
+            // Add global values to config
+            data.decorators = data.decorators.concat(global.decorators);
+            angular.extend(data.methods, global.methods);
 
             config.push(data);
+
+            return self;
+        };
+
+        self.global = function(data) {
+            global = data;
 
             return self;
         };
@@ -81,9 +106,9 @@
     });
 
     /*
-     Bind $provide to the module so that it can be used
-     during the angular.run phase. Resource creation needs to happen in the
-     angular.run phase because configuration isn't available before then.
+     Bind $provide to the module so that it can be used during the angular.run phase.
+     Resource creation needs to happen in the angular.run phase because configuration
+     from other modules isn't available before then.
 
      @ngInject
      */
@@ -119,9 +144,22 @@
      @ngInject
      */
     function CacheDecorator($delegate, lodash) {
+        var decorator = {};
+
         var self = {
-            caches:  {},
+            caches: {}
         };
+
+        var cachedCalls = [
+            'get',
+            'query',
+        ];
+
+        var cacheClearingCalls = [
+            'save',
+            'update',
+            'delete',
+        ];
 
         function initResourceCache() {
             self.caches[$delegate.config.name] = {
@@ -141,10 +179,10 @@
         }
 
         /*
-         If not forced, cached is true and the query params are the same
-         return the cached data, otherwise make the API call.
+         If not forced, cached is true, and the query params are the same,
+         return the cached data; otherwise make the API call.
          */
-        function getCachedCall(call, params, forced) {
+        function makeCachedCall(call, params, forced) {
             var currentCache = self.caches[$delegate.config.name];
 
             if (!currentCache) {
@@ -179,7 +217,7 @@
          On save or update, we invalidate the cache. This prevents us
          from returning outdated data on a later call.
          */
-        function clearCachedCall(call, data) {
+        function makeCacheClearingCall(call, data) {
             var currentCache = self.caches[$delegate.config.name];
 
             if (!currentCache) {
@@ -192,37 +230,28 @@
             return $delegate[call](data);
         }
 
-        return {
-            // Call the parent save function and invalidate cache
-            save: function (data) {
-                return clearCachedCall('save', data);
-            },
+        // Give the decorator all methods that the delegated resource has
+        angular.extend(decorator, $delegate);
 
-            // Call the parent update function and invalidate cache
-            update: function (data) {
-                return clearCachedCall('update', data);
-            },
+        // Create decorator methods for all calls that require caching
+        cachedCalls.forEach(function (call) {
+            decorator[call] = function (params, forced) {
+                return makeCachedCall(call, params, forced);
+            };
+        });
 
-            // Get possibly cached data
-            get: function (params, forced) {
-                return getCachedCall('get', params, forced);
-            },
+        // Create decorator methods for all calls that invalidate cache
+        cacheClearingCalls.forEach(function (call) {
+            decorator[call] = function (data) {
+                return makeCacheClearingCall(call, data);
+            };
+        });
 
-            // Query possibly cached data
-            query: function (params, forced) {
-                return getCachedCall('query', params, forced);
-            },
-
-            // Call the parent delete function and invalidate cache
-            delete: function (data) {
-                return clearCachedCall('delete', data);
-            }
-        };
+        return decorator;
     }
 
-
     /*
-     Loop through each resource defined in ResourceConfig, adding decorator if specified.
+     Loop through each resource defined in ResourceConfig, adding cache decorator if specified.
 
      @ngInject
      */
