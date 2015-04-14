@@ -31,7 +31,7 @@ Include a script tag (or add it to whatever you use to compile your js):
 
 ### Configuring Resources
 
-All of your resources can be generated from a single configuration file. Here's an example configuration:
+All of your resources can be generated from a single configuration file. This is done through the `ResourceConfigProvider`. Here's an example configuration:
 
 ```
 (function() {
@@ -59,7 +59,9 @@ All of your resources can be generated from a single configuration file. Here's 
 
 In the example above we're defining three resources, Document, Form and User. Each of these resources will make API calls to their specified route.
 
-`ResourceConfig` also allows us to set global configuration on all of our resources. In this example, we're indicating that every resource should use the `cache` decorator and every resource should have a `persist` method.
+`ResourceConfigProvider` also allows us to set global configuration on all of our resources. In this example, we're indicating that every resource should use the `cache` decorator and every resource should have a `persist` method.
+
+Although the config does allow us to create custom methods, keep in mind that we want our APIs to be as simple as possible. In most cases, it is better to use query params rather than create custom routes.
 
 
 ### Generated Resources
