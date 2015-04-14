@@ -3,7 +3,7 @@
 This module provides an easy way to create and decorate angular $resource services from a config file. This module was created with two goals: consistent API services and avoiding boilerplate.
 
 ### Version
-0.0.6
+0.1.0
 
 ### Installation and Setup
 
@@ -39,23 +39,28 @@ All of your resources can be generated from a single configuration file. Here's 
     // @ngInject
     function resourceConfig(ResourceConfigProvider) {
         ResourceConfigProvider
-            .add('Document', '/api/documents/:id', {
-                decorators: [
-                    'cache'
-                ],
+            .global({
+                decorators: ['cache'],
+                methods: {
+                    persist: { method: 'POST', isArray: false },
+                }
             })
-            .add('Form', '/api/forms/:id', {
-                decorators: [
-                    'cache'
-                ],
-            });
+            .add('Document', '/api/documents/:id', {
+                decorators: [ ... ],
+                methods: { ... },
+            })
+            .add('Form', '/api/forms/:id')
+            .add('User', '/api/users/:id');
     }
 
     app.config(resourceConfig);
 })();
 ```
 
-In the example above we're defining two resources, Document and Form. Each of these resources will make API calls to their specified route.
+In the example above we're defining three resources, Document, Form and User. Each of these resources will make API calls to their specified route.
+
+`ResourceConfig` also allows us to set global configuration on all of our resources. In this example, we're indicating that every resource should use the `cache` decorator and every resource should have a `persist` method.
+
 
 ### Generated Resources
 
@@ -79,7 +84,9 @@ return {
     }
 };
 ```
-*Note: * Each resource method returns a `$promise`, therefore it needs to be handled using Angular's `$promise` API.
+**Note:** Each resource method returns a `$promise`, therefore it needs to be handled using Angular's `$promise` API.
+
+**Note:** If extra methods are provided, they can be called in the same was as the default methods.
 
 ### How To Use Them
 
