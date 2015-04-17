@@ -27,16 +27,29 @@
                 update: {method: 'PUT'}
             };
 
-            // Add extra methods
+            // Add custom resource methods
             angular.extend(resourceMethods, config.methods);
 
+            // Add relation resource methods
+            self.config.relations.forEach(function (relation) {
+                resourceMethods[relation] = { method: 'GET', isArray: true, url: self.config.route + '/' + relation };
+            });
+
+            // Build the $resource
             self.resource = $resource(config.route, {id: '@id'}, resourceMethods);
 
-            // Create a method on the service for each config method provided
+            // Create a functions on the service for each custom method set on $resource
             Object.keys(config.methods).forEach(function (key) {
                 self[key] = function (data) {
                     return self.resource[key](data).$promise;
-                }
+                };
+            });
+
+            // Create a functions on the service for each relation method set on $resource
+            self.config.relations.forEach(function (relation) {
+                self[relation] = function (data) {
+                    return self.resource[relation](data).$promise;
+                };
             });
 
             self.save = function (data) {
@@ -62,73 +75,6 @@
             return self;
         };
     }
-
-    /*
-     A provider for separate modules to configure the resource generator.
-
-     @ngInject
-     */
-    osdResource.provider('ResourceConfig', function () {
-        var self = this;
-        var config = [];
-        var global = {
-            decorators: [],
-            methods: {}
-        };
-
-        self.add = function (name, route, data) {
-            data = data || {};
-            data.name = name;
-            data.route = route;
-            data.decorators = data.decorators || [];
-            data.methods = data.methods || {};
-
-            // Add global values to config
-            data.decorators = data.decorators.concat(global.decorators);
-            angular.extend(data.methods, global.methods);
-
-            config.push(data);
-
-            return self;
-        };
-
-        self.global = function(data) {
-            global = data;
-
-            return self;
-        };
-
-        self.$get = function () {
-            return config;
-        };
-
-        return self;
-    });
-
-    /*
-     Bind $provide to the module so that it can be used during the angular.run phase.
-     Resource creation needs to happen in the angular.run phase because configuration
-     from other modules isn't available before then.
-
-     @ngInject
-     */
-    osdResource.config(function ($provide) {
-        osdResource.register = {
-            factory: $provide.factory,
-            decorator: $provide.decorator
-        };
-    });
-
-    /*
-     Loop through each resource defined in ResourceConfig and create resource.
-
-     @ngInject
-     */
-    osdResource.run(function (ResourceConfig) {
-        ResourceConfig.forEach(function (config) {
-            osdResource.register.factory(config.name, ['$resource', createResource(config)]);
-        });
-    });
 })();
 
 (function () {
@@ -161,19 +107,23 @@
             'delete',
         ];
 
+        // Add relation resources to the list of cached calls.
+        cachedCalls = cachedCalls.concat($delegate.config.relations);
+
+        /*
+         Create empty caches for a specific resource. Each resource method has its own cache object
+         which keeps track of the cached data, the query params used and whether or data has been cached.
+         */
         function initResourceCache() {
-            self.caches[$delegate.config.name] = {
-                get: {
+            self.caches[$delegate.config.name] = {};
+
+            self.cachedCalls.forEach(function (call) {
+                self.caches[call] = {
                     cached: false,
                     params: null,
                     data: null
-                },
-                query: {
-                    cached: false,
-                    params: null,
-                    data: null
-                }
-            };
+                };
+            });
 
             return self.caches[$delegate.config.name];
         }
