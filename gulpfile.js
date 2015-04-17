@@ -10,7 +10,6 @@ var paths = {
     js: [
         'src/app.js',
         'src/config.js',
-        'src/run.js',
         'src/angular-osd-resource.js',
         'src/decorators/**/*.js',
     ],
@@ -20,7 +19,6 @@ var paths = {
         'node_modules/angular-mocks/angular-mocks.js',
         'src/app.js',
         'src/config.js',
-        'src/run.js',
         'src/angular-osd-resource.js',
         'src/decorators/**/*.js',
         'test/**/*.js',
