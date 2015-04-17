@@ -48,6 +48,7 @@ All of your resources can be generated from a single configuration file. This is
             .add('Document', '/api/documents/:id', {
                 decorators: [ ... ],
                 methods: { ... },
+                relations: [ ... ],
             })
             .add('Form', '/api/forms/:id')
             .add('User', '/api/users/:id');
@@ -106,6 +107,24 @@ myApp.controller('FormCtrl', function(Form) {
         });
 })
 ```
+
+### Resource Relations
+
+When configuring resources, we can also specify relationships. For example, if a `User` has many `Comments`, we would like to be able to query `/api/v1/users/:id/comments`. To do this, we can specify an array of relations in our resource config file. See above for an example. To query the comments associated with the user of id = 1 , we can do the following: 
+
+```
+// @ngInject
+myApp.controller('UserCtrl', function(User) {
+
+    // User has a Comments relation 
+    User.comments({ id: 1 })
+        .then(function(response) {
+            var comments = response;
+            // ...
+        });
+})
+```
+ 
 
 ### Decorators
 
