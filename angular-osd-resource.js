@@ -34,8 +34,7 @@
         var config = [];
         var global = {
             decorators: [],
-            methods: {},
-            relations: {},
+            methods: {}
         };
 
         self.add = function (name, route, data) {
@@ -87,7 +86,6 @@
             var self = this;
 
             self.config = config;
-            self.config.methods = self.config.methods || {};
 
             var resourceMethods = {
                 query: {method: 'GET', isArray: false},
@@ -195,8 +193,8 @@
         function initResourceCache() {
             self.caches[$delegate.config.name] = {};
 
-            self.cachedCalls.forEach(function (call) {
-                self.caches[call] = {
+            cachedCalls.forEach(function (call) {
+                self.caches[$delegate.config.name][call] = {
                     cached: false,
                     params: null,
                     data: null
