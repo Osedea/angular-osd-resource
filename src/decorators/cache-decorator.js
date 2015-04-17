@@ -38,8 +38,8 @@
         function initResourceCache() {
             self.caches[$delegate.config.name] = {};
 
-            self.cachedCalls.forEach(function (call) {
-                self.caches[call] = {
+            cachedCalls.forEach(function (call) {
+                self.caches[$delegate.config.name][call] = {
                     cached: false,
                     params: null,
                     data: null

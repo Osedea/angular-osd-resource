@@ -28,8 +28,7 @@
         var config = [];
         var global = {
             decorators: [],
-            methods: {},
-            relations: {},
+            methods: {}
         };
 
         self.add = function (name, route, data) {

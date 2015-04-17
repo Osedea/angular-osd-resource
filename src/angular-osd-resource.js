@@ -14,7 +14,6 @@
             var self = this;
 
             self.config = config;
-            self.config.methods = self.config.methods || {};
 
             var resourceMethods = {
                 query: {method: 'GET', isArray: false},
