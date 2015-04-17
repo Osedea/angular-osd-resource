@@ -28,19 +28,23 @@
             'delete',
         ];
 
+        // Add relation resources to the list of cached calls.
+        cachedCalls = cachedCalls.concat($delegate.config.relations);
+
+        /*
+         Create empty caches for a specific resource. Each resource method has its own cache object
+         which keeps track of the cached data, the query params used and whether or data has been cached.
+         */
         function initResourceCache() {
-            self.caches[$delegate.config.name] = {
-                get: {
+            self.caches[$delegate.config.name] = {};
+
+            self.cachedCalls.forEach(function (call) {
+                self.caches[call] = {
                     cached: false,
                     params: null,
                     data: null
-                },
-                query: {
-                    cached: false,
-                    params: null,
-                    data: null
-                }
-            };
+                };
+            });
 
             return self.caches[$delegate.config.name];
         }

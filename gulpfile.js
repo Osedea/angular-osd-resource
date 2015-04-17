@@ -17,6 +17,8 @@ var paths = {
         'bower_components/ng-lodash/build/ng-lodash.js',
         'node_modules/angular-mocks/angular-mocks.js',
         'src/app.js',
+        'src/config.js',
+        'src/run.js',
         'src/angular-osd-resource.js',
         'src/decorators/**/*.js',
         'test/**/*.js',
