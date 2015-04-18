@@ -19,14 +19,17 @@
 
         var cachedCalls = [
             'get',
-            'query',
+            'query'
         ];
 
         var cacheClearingCalls = [
             'save',
             'update',
-            'delete',
+            'delete'
         ];
+
+        // Give the decorator all methods that the delegated resource has
+        angular.extend(decorator, $delegate);
 
         // Add relation resources to the list of cached calls.
         cachedCalls = cachedCalls.concat($delegate.config.relations);
@@ -100,9 +103,6 @@
 
             return $delegate[call](data);
         }
-
-        // Give the decorator all methods that the delegated resource has
-        angular.extend(decorator, $delegate);
 
         // Create decorator methods for all calls that require caching
         cachedCalls.forEach(function (call) {
