@@ -4,7 +4,8 @@ var gulp = require('gulp'),
     ngAnnotate = require('gulp-ng-annotate'),
     gutil = require('gulp-util'),
     concat = require('gulp-concat'),
-    karma = require('gulp-karma');
+    karma = require('gulp-karma'),
+    babel = require('gulp-babel');
 
 var paths = {
     js: [
@@ -35,6 +36,7 @@ gulp.task('js', function() {
     return gulp.src(paths.js)
         .pipe(concat('angular-osd-resource.js'))
         .pipe(gulp.dest('./'))
+        .pipe(babel())
         .pipe(ngAnnotate())
         .pipe(uglify())
         .pipe(rename({ extname: '.min.js' }))

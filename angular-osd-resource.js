@@ -319,21 +319,21 @@
         };
 
         /* Extend the original params with current pagination state and make query */
-        paginator.query = function(params) {
+        paginator.query = function(params = {}) {
             angular.extend(params, paginator.paginationStates[$delegate.config.name]);
 
             /* This is the decorated call. */
-            return $delegate[call](params);
+            return $delegate.query(params);
         };
 
         /* Decrement the current page and make paginated query */
-        paginator.prev = function(params) {
+        paginator.prevPage = function(params) {
             paginator.paginationStates[$delegate.config.name].page--;
             paginator.query(params);
         };
 
         /* Increment the current page and make paginated query */
-        paginator.next = function(params) {
+        paginator.nextPage = function(params) {
             paginator.paginationStates[$delegate.config.name].page++;
             paginator.query(params);
         };
