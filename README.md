@@ -89,7 +89,7 @@ return {
 ```
 **Note:** Each resource method returns a `$promise`, therefore it needs to be handled using Angular's `$promise` API.
 
-**Note:** If extra methods are provided, they can be called in the same was as the default methods.
+**Note:** If extra methods are provided, they can be called in the same way as the default methods.
 
 ### How To Use Them
 
@@ -140,18 +140,18 @@ The following decorators are available:
 In our configuration file, we can specify that we want our resource to be decorated with a paginator. The paginate decorator manages the pagination state so we don't have to. The following methods are available for paginated resources: 
 
 ```
-        /* Extend the params with pagination state and make query */
-        PaginatedResource.query = function(params) {};
-        
-        /* Decrement the current page and make paginated query */
-        PaginatedResource.prevPage = function(params) {};
+/* Extend the params with pagination state and make query */
+PaginatedResource.query = function(params) {};
 
-        /* Increment the current page and make paginated query */
-        PaginatedResource.nextPage = function(params) {};
+/* Decrement the current page and make paginated query */
+PaginatedResource.prevPage = function(params) {};
 
-        PaginatedResourcer.perPage = function(value) {};
+/* Increment the current page and make paginated query */
+PaginatedResource.nextPage = function(params) {};
 
-        PaginatedResource.page = function(value) {};
+PaginatedResource.perPage = function(value) {};
+
+PaginatedResource.page = function(value) {};
 ```
 
 
