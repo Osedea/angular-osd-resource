@@ -3,7 +3,7 @@
 This module provides an easy way to create and decorate angular $resource services from a config file. This module was created with two goals: consistent API services and avoiding boilerplate.
 
 ### Version
-0.1.0
+0.1.2
 
 ### Installation and Setup
 
@@ -40,7 +40,7 @@ All of your resources can be generated from a single configuration file. This is
     function resourceConfig(ResourceConfigProvider) {
         ResourceConfigProvider
             .global({
-                decorators: ['cache'],
+                decorators: ['cache', 'paginate'],
                 methods: {
                     persist: { method: 'POST', isArray: false },
                 }
@@ -128,10 +128,31 @@ myApp.controller('UserCtrl', function(User) {
 
 ### Decorators
 
-When generating resources, we can decorate them with common functions. For example, if we want to cache data being queried from the resource, we can use the cacheDecorator. Other possible decorators could include logging or debugging functions. See above for an example of how to include decorators on a resource.
+When generating resources, we can decorate them with common functions. For example, if we want to cache data being queried from the resource, we can use the cacheDecorator. See above for an example of how to include decorators on a resource.
 
-The following decorator are available:
+The following decorators are available:
  - cache
+ - paginate
+
+
+### Paginate Decorator
+
+In our configuration file, we can specify that we want our resource to be decorated with a paginator. The paginate decorator manages the pagination state so we don't have to. The following methods are available for paginated resources: 
+
+```
+        /* Extend the params with pagination state and make query */
+        PaginatedResource.query = function(params) {};
+        
+        /* Decrement the current page and make paginated query */
+        PaginatedResource.prevPage = function(params) {};
+
+        /* Increment the current page and make paginated query */
+        PaginatedResource.nextPage = function(params) {};
+
+        PaginatedResourcer.perPage = function(value) {};
+
+        PaginatedResource.page = function(value) {};
+```
 
 
 #### License
