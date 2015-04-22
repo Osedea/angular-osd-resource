@@ -1,6 +1,6 @@
 # angular-osd-resource
 
-This module provides an easy way to create and decorate angular $resource services from a config file. This module was created with two goals: consistent API services and avoiding boilerplate.
+This module provides an easy way to create and decorate angular $resource services from a config file. It also provides provides a caching and pagination state decorators. This module was created with the following goals: clean, consistent API resources and easy to use caching and pagination.
 
 ### Version
 0.1.2
@@ -110,13 +110,13 @@ myApp.controller('FormCtrl', function(Form) {
 
 ### Resource Relations
 
-When configuring resources, we can also specify relationships. For example, if a `User` has many `Comments`, we would like to be able to query `/api/v1/users/:id/comments`. To do this, we can specify an array of relations in our resource config file. See above for an example. To query the comments associated with the user of id = 1 , we can do the following: 
+When configuring resources, we can also specify relationships. For example, if a `User` has many `Comments`, we would like to be able to query `/api/v1/users/:id/comments`. To do this, we can specify an array of relations in our resource config file. See above for an example. To query the comments associated with the user of id = 1 , we can do the following:
 
 ```
 // @ngInject
 myApp.controller('UserCtrl', function(User) {
 
-    // User has a Comments relation 
+    // User has a Comments relation
     User.comments({ id: 1 })
         .then(function(response) {
             var comments = response;
@@ -124,7 +124,7 @@ myApp.controller('UserCtrl', function(User) {
         });
 })
 ```
- 
+
 
 ### Decorators
 
@@ -137,7 +137,7 @@ The following decorators are available:
 
 ### Paginate Decorator
 
-In our configuration file, we can specify that we want our resource to be decorated with a paginator. The paginate decorator manages the pagination state so we don't have to. The following methods are available for paginated resources: 
+In our configuration file, we can specify that we want our resource to be decorated with a paginator. The paginate decorator manages the pagination state so we don't have to. The following methods are available for paginated resources:
 
 ```
 /* Extend the params with pagination state and make query */
