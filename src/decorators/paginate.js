@@ -67,8 +67,8 @@
      @ngInject
      */
     osdResource.run(function (ResourceConfig) {
-        ResourceConfig.forEach(function (config) {
-            config.decorators.forEach(function (decorator) {
+        angular.forEach(ResourceConfig, function (config) {
+            angular.forEach(config.decorators, function (decorator) {
                 if (decorator == 'paginate') {
                     osdResource.register.decorator(config.name, PaginateDecorator);
                 }

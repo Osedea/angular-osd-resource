@@ -24,7 +24,7 @@
             angular.extend(resourceMethods, config.methods);
 
             // Add relation resource methods
-            self.config.relations.forEach(function (relation) {
+            angular.forEach(self.config.relations, function (relation) {
                 resourceMethods[relation] = { method: 'GET', isArray: true, url: self.config.route + '/' + relation };
             });
 
@@ -32,14 +32,14 @@
             self.resource = $resource(config.route, {id: '@id'}, resourceMethods);
 
             // Create a functions on the service for each custom method set on $resource
-            Object.keys(config.methods).forEach(function (key) {
+            angular.forEach(Object.keys(config.methods), function (key) {
                 self[key] = function (data) {
                     return self.resource[key](data).$promise;
                 };
             });
 
             // Create a functions on the service for each relation method set on $resource
-            self.config.relations.forEach(function (relation) {
+            angular.forEach(self.config.relations, function (relation) {
                 self[relation] = function (data) {
                     return self.resource[relation](data).$promise;
                 };
@@ -75,7 +75,7 @@
      @ngInject
      */
     osdResource.run(function (ResourceConfig) {
-        ResourceConfig.forEach(function (config) {
+        angular.forEach(ResourceConfig, function (config) {
             osdResource.register.factory(config.name, ['$resource', createResource(config)]);
         });
     });

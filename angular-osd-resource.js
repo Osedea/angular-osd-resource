@@ -96,7 +96,7 @@
             angular.extend(resourceMethods, config.methods);
 
             // Add relation resource methods
-            self.config.relations.forEach(function (relation) {
+            angular.forEach(self.config.relations, function (relation) {
                 resourceMethods[relation] = { method: 'GET', isArray: true, url: self.config.route + '/' + relation };
             });
 
@@ -104,14 +104,14 @@
             self.resource = $resource(config.route, {id: '@id'}, resourceMethods);
 
             // Create a functions on the service for each custom method set on $resource
-            Object.keys(config.methods).forEach(function (key) {
+            angular.forEach(Object.keys(config.methods), function (key) {
                 self[key] = function (data) {
                     return self.resource[key](data).$promise;
                 };
             });
 
             // Create a functions on the service for each relation method set on $resource
-            self.config.relations.forEach(function (relation) {
+            angular.forEach(self.config.relations, function (relation) {
                 self[relation] = function (data) {
                     return self.resource[relation](data).$promise;
                 };
@@ -147,7 +147,7 @@
      @ngInject
      */
     osdResource.run(function (ResourceConfig) {
-        ResourceConfig.forEach(function (config) {
+        angular.forEach(ResourceConfig, function (config) {
             osdResource.register.factory(config.name, ['$resource', createResource(config)]);
         });
     });
@@ -196,7 +196,7 @@
         function initResourceCache() {
             self.caches[$delegate.config.name] = {};
 
-            cachedCalls.forEach(function (call) {
+            angular.forEach(cachedCalls, function (call) {
                 self.caches[$delegate.config.name][call] = {
                     cached: false,
                     params: null,
@@ -260,14 +260,14 @@
         }
 
         // Create decorator methods for all calls that require caching
-        cachedCalls.forEach(function (call) {
+        angular.forEach(cachedCalls, function (call) {
             decorator[call] = function (params, forced) {
                 return makeCachedCall(call, params, forced);
             };
         });
 
         // Create decorator methods for all calls that invalidate cache
-        cacheClearingCalls.forEach(function (call) {
+        angular.forEach(cacheClearingCalls, function (call) {
             decorator[call] = function (data) {
                 return makeCacheClearingCall(call, data);
             };
@@ -282,8 +282,8 @@
      @ngInject
      */
     osdResource.run(function (ResourceConfig) {
-        ResourceConfig.forEach(function (config) {
-            config.decorators.forEach(function (decorator) {
+        angular.forEach(ResourceConfig, function (config) {
+            angular.forEach(config.decorators, function (decorator) {
                 if (decorator == 'cache') {
                     osdResource.register.decorator(config.name, CacheDecorator);
                 }
@@ -361,8 +361,8 @@
      @ngInject
      */
     osdResource.run(function (ResourceConfig) {
-        ResourceConfig.forEach(function (config) {
-            config.decorators.forEach(function (decorator) {
+        angular.forEach(ResourceConfig, function (config) {
+            angular.forEach(config.decorators, function (decorator) {
                 if (decorator == 'paginate') {
                     osdResource.register.decorator(config.name, PaginateDecorator);
                 }
