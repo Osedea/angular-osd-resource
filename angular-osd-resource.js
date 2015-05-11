@@ -318,7 +318,7 @@
             perPage: null
         };
 
-        /* Extend the original params with current pagination state and make query */
+        /* Extend the params with pagination state and make query */
         paginator.query = function(params) {
             params = params || {};
 
