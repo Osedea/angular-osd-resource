@@ -331,13 +331,15 @@
         /* Decrement the current page and make paginated query */
         paginator.prevPage = function(params) {
             paginator.paginationStates[$delegate.config.name].page--;
-            paginator.query(params);
+
+            return paginator.query(params);
         };
 
         /* Increment the current page and make paginated query */
         paginator.nextPage = function(params) {
             paginator.paginationStates[$delegate.config.name].page++;
-            paginator.query(params);
+
+            return paginator.query(params);
         };
 
         paginator.perPage = function(value) {
