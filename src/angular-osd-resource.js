@@ -10,7 +10,7 @@
      cache decorator). Each resource is built using the ResourceConfig provider.
      */
     function createResource(config) {
-        return function ($resource) {
+        return function ($resource, lodash) {
             var self = this;
 
             self.config = config;
@@ -21,10 +21,10 @@
             };
 
             // Add custom resource methods
-            angular.extend(resourceMethods, config.methods);
+            lodash.assign(resourceMethods, config.methods);
 
             // Add relation resource methods
-            angular.forEach(self.config.relations, function (relation) {
+            lodash.forEach(self.config.relations, function (relation) {
                 resourceMethods[relation] = { method: 'GET', isArray: true, url: self.config.route + '/' + relation };
             });
 
@@ -32,37 +32,37 @@
             self.resource = $resource(config.route, {id: '@id'}, resourceMethods);
 
             // Create a functions on the service for each custom method set on $resource
-            angular.forEach(Object.keys(config.methods), function (key) {
+            lodash.forEach(Object.keys(config.methods), function (key) {
                 self[key] = function (data) {
                     return self.resource[key](data).$promise;
                 };
             });
 
             // Create a functions on the service for each relation method set on $resource
-            angular.forEach(self.config.relations, function (relation) {
+            lodash.forEach(self.config.relations, function (relation) {
                 self[relation] = function (data) {
                     return self.resource[relation](data).$promise;
                 };
             });
 
-            self.save = function (data) {
-                return self.resource.save(data).$promise;
+            self.save = function (data, success, error) {
+                return self.resource.save(data, success, error).$promise;
             };
 
-            self.update = function (data) {
-                return self.resource.update(data).$promise;
+            self.update = function (data, success, error) {
+                return self.resource.update(data, success, error).$promise;
             };
 
-            self.get = function (params) {
-                return self.resource.get(params).$promise;
+            self.get = function (params, success, error) {
+                return self.resource.get(params, success, error).$promise;
             };
 
-            self.query = function (params) {
-                return self.resource.query(params).$promise;
+            self.query = function (params, success, error) {
+                return self.resource.query(params, success, error).$promise;
             };
 
-            self.delete = function (id) {
-                return self.resource.delete({id: id}).$promise;
+            self.delete = function (id, success, error) {
+                return self.resource.delete({id: id}, success, error).$promise;
             };
 
             return self;
@@ -74,9 +74,9 @@
 
      @ngInject
      */
-    osdResource.run(function (ResourceConfig) {
-        angular.forEach(ResourceConfig, function (config) {
-            osdResource.register.factory(config.name, ['$resource', createResource(config)]);
+    osdResource.run(function (ResourceConfig, lodash) {
+        lodash.forEach(ResourceConfig, function (config) {
+            osdResource.register.factory(config.name, ['$resource', 'lodash', createResource(config)]);
         });
     });
-})();
+}());

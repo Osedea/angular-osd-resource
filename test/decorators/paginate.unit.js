@@ -57,7 +57,7 @@ describe('PaginateDecorator', function() {
 
         UserResource.query(params);
 
-        expect(UserResource.resource.query).toHaveBeenCalledWith({ param1: 'param1', param2: 'param2', page: 1, perPage: null });
+        expect(UserResource.resource.query).toHaveBeenCalledWith({ param1: 'param1', param2: 'param2', page: 1, perPage: null }, undefined, undefined);
     });
 
     it('allows us to chain page() and perPage() with query()', function() {
@@ -69,7 +69,7 @@ describe('PaginateDecorator', function() {
 
         UserResource.page(10).perPage(10).query(params);
 
-        expect(UserResource.resource.query).toHaveBeenCalledWith({ param1: 'param1', param2: 'param2', page: 10, perPage: 10 });
+        expect(UserResource.resource.query).toHaveBeenCalledWith({ param1: 'param1', param2: 'param2', page: 10, perPage: 10 }, undefined, undefined);
     });
 
     it('allows multiple calls to nextPage() and sends correct params', function() {
@@ -80,9 +80,9 @@ describe('PaginateDecorator', function() {
         var params = { param1: 'param1', param2: 'param2' };
 
         UserResource.nextPage(params);
-        expect(UserResource.resource.query).toHaveBeenCalledWith({ param1: 'param1', param2: 'param2', page: 2, perPage: null });
+        expect(UserResource.resource.query).toHaveBeenCalledWith({ param1: 'param1', param2: 'param2', page: 2, perPage: null }, undefined, undefined);
 
         UserResource.nextPage(params);
-        expect(UserResource.resource.query).toHaveBeenCalledWith({ param1: 'param1', param2: 'param2', page: 3, perPage: null });
+        expect(UserResource.resource.query).toHaveBeenCalledWith({ param1: 'param1', param2: 'param2', page: 3, perPage: null }, undefined, undefined);
     });
 });

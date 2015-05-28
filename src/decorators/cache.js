@@ -29,7 +29,7 @@
         ];
 
         // Give the decorator all methods that the delegated resource has
-        angular.extend(decorator, $delegate);
+        lodash.extend(decorator, $delegate);
 
         // Add relation resources to the list of cached calls.
         cachedCalls = cachedCalls.concat($delegate.config.relations);
@@ -41,7 +41,7 @@
         function initResourceCache() {
             self.caches[$delegate.config.name] = {};
 
-            angular.forEach(cachedCalls, function (call) {
+            lodash.forEach(cachedCalls, function (call) {
                 self.caches[$delegate.config.name][call] = {
                     cached: false,
                     params: null,
@@ -105,14 +105,14 @@
         }
 
         // Create decorator methods for all calls that require caching
-        angular.forEach(cachedCalls, function (call) {
+        lodash.forEach(cachedCalls, function (call) {
             decorator[call] = function (params, forced) {
                 return makeCachedCall(call, params, forced);
             };
         });
 
         // Create decorator methods for all calls that invalidate cache
-        angular.forEach(cacheClearingCalls, function (call) {
+        lodash.forEach(cacheClearingCalls, function (call) {
             decorator[call] = function (data) {
                 return makeCacheClearingCall(call, data);
             };
@@ -126,13 +126,13 @@
 
      @ngInject
      */
-    osdResource.run(function (ResourceConfig) {
-        angular.forEach(ResourceConfig, function (config) {
-            angular.forEach(config.decorators, function (decorator) {
+    osdResource.run(function (ResourceConfig, lodash) {
+        lodash.forEach(ResourceConfig, function (config) {
+            lodash.forEach(config.decorators, function (decorator) {
                 if (decorator == 'cache') {
                     osdResource.register.decorator(config.name, CacheDecorator);
                 }
             });
         });
     });
-})();
+}());

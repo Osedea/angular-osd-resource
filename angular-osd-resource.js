@@ -82,7 +82,7 @@
      cache decorator). Each resource is built using the ResourceConfig provider.
      */
     function createResource(config) {
-        return function ($resource) {
+        return function ($resource, lodash) {
             var self = this;
 
             self.config = config;
@@ -93,10 +93,10 @@
             };
 
             // Add custom resource methods
-            angular.extend(resourceMethods, config.methods);
+            lodash.assign(resourceMethods, config.methods);
 
             // Add relation resource methods
-            angular.forEach(self.config.relations, function (relation) {
+            lodash.forEach(self.config.relations, function (relation) {
                 resourceMethods[relation] = { method: 'GET', isArray: true, url: self.config.route + '/' + relation };
             });
 
@@ -104,37 +104,37 @@
             self.resource = $resource(config.route, {id: '@id'}, resourceMethods);
 
             // Create a functions on the service for each custom method set on $resource
-            angular.forEach(Object.keys(config.methods), function (key) {
+            lodash.forEach(Object.keys(config.methods), function (key) {
                 self[key] = function (data) {
                     return self.resource[key](data).$promise;
                 };
             });
 
             // Create a functions on the service for each relation method set on $resource
-            angular.forEach(self.config.relations, function (relation) {
+            lodash.forEach(self.config.relations, function (relation) {
                 self[relation] = function (data) {
                     return self.resource[relation](data).$promise;
                 };
             });
 
-            self.save = function (data) {
-                return self.resource.save(data).$promise;
+            self.save = function (data, success, error) {
+                return self.resource.save(data, success, error).$promise;
             };
 
-            self.update = function (data) {
-                return self.resource.update(data).$promise;
+            self.update = function (data, success, error) {
+                return self.resource.update(data, success, error).$promise;
             };
 
-            self.get = function (params) {
-                return self.resource.get(params).$promise;
+            self.get = function (params, success, error) {
+                return self.resource.get(params, success, error).$promise;
             };
 
-            self.query = function (params) {
-                return self.resource.query(params).$promise;
+            self.query = function (params, success, error) {
+                return self.resource.query(params, success, error).$promise;
             };
 
-            self.delete = function (id) {
-                return self.resource.delete({id: id}).$promise;
+            self.delete = function (id, success, error) {
+                return self.resource.delete({id: id}, success, error).$promise;
             };
 
             return self;
@@ -146,12 +146,12 @@
 
      @ngInject
      */
-    osdResource.run(function (ResourceConfig) {
-        angular.forEach(ResourceConfig, function (config) {
-            osdResource.register.factory(config.name, ['$resource', createResource(config)]);
+    osdResource.run(function (ResourceConfig, lodash) {
+        lodash.forEach(ResourceConfig, function (config) {
+            osdResource.register.factory(config.name, ['$resource', 'lodash', createResource(config)]);
         });
     });
-})();
+}());
 
 (function () {
 
@@ -184,7 +184,7 @@
         ];
 
         // Give the decorator all methods that the delegated resource has
-        angular.extend(decorator, $delegate);
+        lodash.extend(decorator, $delegate);
 
         // Add relation resources to the list of cached calls.
         cachedCalls = cachedCalls.concat($delegate.config.relations);
@@ -196,7 +196,7 @@
         function initResourceCache() {
             self.caches[$delegate.config.name] = {};
 
-            angular.forEach(cachedCalls, function (call) {
+            lodash.forEach(cachedCalls, function (call) {
                 self.caches[$delegate.config.name][call] = {
                     cached: false,
                     params: null,
@@ -260,14 +260,14 @@
         }
 
         // Create decorator methods for all calls that require caching
-        angular.forEach(cachedCalls, function (call) {
+        lodash.forEach(cachedCalls, function (call) {
             decorator[call] = function (params, forced) {
                 return makeCachedCall(call, params, forced);
             };
         });
 
         // Create decorator methods for all calls that invalidate cache
-        angular.forEach(cacheClearingCalls, function (call) {
+        lodash.forEach(cacheClearingCalls, function (call) {
             decorator[call] = function (data) {
                 return makeCacheClearingCall(call, data);
             };
@@ -281,16 +281,16 @@
 
      @ngInject
      */
-    osdResource.run(function (ResourceConfig) {
-        angular.forEach(ResourceConfig, function (config) {
-            angular.forEach(config.decorators, function (decorator) {
+    osdResource.run(function (ResourceConfig, lodash) {
+        lodash.forEach(ResourceConfig, function (config) {
+            lodash.forEach(config.decorators, function (decorator) {
                 if (decorator == 'cache') {
                     osdResource.register.decorator(config.name, CacheDecorator);
                 }
             });
         });
     });
-})();
+}());
 
 (function () {
 
@@ -304,54 +304,94 @@
 
      @ngInject
      */
-    function PaginateDecorator($delegate) {
+    function PaginateDecorator($delegate, lodash) {
         var paginator = {};
+
+        var allowedParams = [
+            'page',
+            'perPage'
+        ];
 
         if (!paginator.paginationStates) {
             paginator.paginationStates = {};
         }
 
-        angular.extend(paginator, $delegate);
+        lodash.assign(paginator, $delegate);
 
         paginator.paginationStates[$delegate.config.name] = {
             page: 1,
-            perPage: null
+            perPage: null,
+            totalCount: 0,
+            totalPage: 0
         };
 
         /* Extend the params with pagination state and make query */
-        paginator.query = function(params) {
+        paginator.query = function (params) {
             params = params || {};
 
-            angular.extend(params, paginator.paginationStates[$delegate.config.name]);
+            var paginationStates = paginator.paginationStates[$delegate.config.name];
+
+            // Add only allowed query params
+            lodash.assign(
+                params,
+                lodash.pick(
+                    paginationStates,
+                    allowedParams
+                )
+            );
 
             /* This is the decorated call. */
-            return $delegate.query(params);
+            return $delegate.query(
+                params,
+                function success(response, headers) {
+                    // This is the way to get the response headers
+                    paginationStates.totalCount = headers('x-total-count');
+                    paginationStates.totalPages = headers('x-total-pages');
+                }
+            );
         };
 
         /* Decrement the current page and make paginated query */
-        paginator.prevPage = function(params) {
+        paginator.prevPage = function (params) {
             paginator.paginationStates[$delegate.config.name].page--;
 
             return paginator.query(params);
         };
 
         /* Increment the current page and make paginated query */
-        paginator.nextPage = function(params) {
+        paginator.nextPage = function (params) {
             paginator.paginationStates[$delegate.config.name].page++;
 
             return paginator.query(params);
         };
 
-        paginator.perPage = function(value) {
+        /* Set the number of items per page to query */
+        paginator.perPage = function (value) {
             paginator.paginationStates[$delegate.config.name].perPage = value;
 
             return paginator;
         };
 
-        paginator.page = function(value) {
+        /* Set the current page */
+        paginator.page = function (value) {
             paginator.paginationStates[$delegate.config.name].page = value;
 
             return paginator;
+        };
+
+        /* Get total number of pages for this query */
+        paginator.getTotalPage = function () {
+            return paginator.paginationStates[$delegate.config.name].totalPage;
+        };
+
+        /* Get total number of items in this request */
+        paginator.getTotalCount = function () {
+            return paginator.paginationStates[$delegate.config.name].totalCount;
+        };
+
+        /* Check if the query has more items to load */
+        paginator.hasMore = function () {
+            return paginator.paginationStates[$delegate.config.name].totalPage > paginator.paginationStates[$delegate.config.name].page;
         };
 
         return paginator;
@@ -362,13 +402,13 @@
 
      @ngInject
      */
-    osdResource.run(function (ResourceConfig) {
-        angular.forEach(ResourceConfig, function (config) {
-            angular.forEach(config.decorators, function (decorator) {
+    osdResource.run(function (ResourceConfig, lodash) {
+        lodash.forEach(ResourceConfig, function (config) {
+            lodash.forEach(config.decorators, function (decorator) {
                 if (decorator == 'paginate') {
                     osdResource.register.decorator(config.name, PaginateDecorator);
                 }
             });
         });
     });
-})();
+}());
