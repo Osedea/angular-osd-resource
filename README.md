@@ -70,19 +70,19 @@ Although the config does allow us to create custom methods, keep in mind that we
 Generated resources have the following API:
 ```
 return {
-    save: function (data) {
+    save: function (data, success, error) {
         return resource.save(data).$promise;
     },
-    update: function (data) {
+    update: function (data, success, error) {
         return resource.update(data).$promise;
     },
-    get: function (params) {
+    get: function (params, success, error) {
         return resource.get(params).$promise;
     },
-    query: function (params) {
+    query: function (params, success, error) {
         return resource.query(params).$promise;
     },
-    delete: function (id) {
+    delete: function (id, success, error) {
         return resource.delete({id: id}).$promise;
     }
 };
@@ -90,6 +90,8 @@ return {
 **Note:** Each resource method returns a `$promise`, therefore it needs to be handled using Angular's `$promise` API.
 
 **Note:** If extra methods are provided, they can be called in the same way as the default methods.
+
+**Note:** `success` and `error` are used to access underlying `$http` `success` and `error` callbacks on response. If you need to access response headers, this is the way to go.
 
 ### How To Use Them
 
@@ -149,6 +151,12 @@ PaginatedResource.nextPage = function(params);
 PaginatedResource.perPage = function(value);
 
 PaginatedResource.page = function(value);
+
+PaginatedResource.getTotalPage = function();
+
+PaginatedResource.getTotalCount = function();
+
+PaginatedResource.hasMore = function();
 ```
 
 
