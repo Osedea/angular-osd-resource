@@ -46,11 +46,11 @@
             });
 
             self.save = function (data, success, error) {
-                return self.resource.save(data, success, error).$promise;
+                return self.resource.save({}, data, success, error).$promise;
             };
 
             self.update = function (data, success, error) {
-                return self.resource.update(data, success, error).$promise;
+                return self.resource.update({}, data, success, error).$promise;
             };
 
             self.get = function (params, success, error) {
