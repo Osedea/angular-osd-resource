@@ -61,8 +61,9 @@
                 return self.resource.query(params, success, error).$promise;
             };
 
-            self.delete = function (id, success, error) {
-                return self.resource.delete({id: id}, success, error).$promise;
+            // Delete is a reserved keyword in IE8
+            self['delete'] = function (id, success, error) {
+                return self.resource['delete']({id: id}, success, error).$promise;
             };
 
             return self;
