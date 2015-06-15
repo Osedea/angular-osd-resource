@@ -52,7 +52,8 @@ gulp.task('test', ['build'], function() {
     return gulp.src(paths.test)
         .pipe(karma({
             configFile: 'karma.conf.js',
-            action: 'watch'
+            action: isTravis ? 'run' : 'watch',
+            singleRun: isTravis
 
         }))
         .on('error', gutil.log);
