@@ -1,7 +1,7 @@
 {
   "name": "angular-osd-resource",
   "main": "angular-osd-resource.js",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "homepage": "https://github.com/Osedea/angular-osd-resource",
   "authors": [
     "Angus <donald.macisaac@mail.mcgill.ca>"

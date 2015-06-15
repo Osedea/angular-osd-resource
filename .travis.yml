@@ -6,6 +6,7 @@ before_script:
   - npm install -g gulp
   - npm install -g karma
   - npm install phantomjs
+  - npm install bower
   - npm install
   - bower install
   - gulp build

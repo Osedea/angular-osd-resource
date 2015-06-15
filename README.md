@@ -3,7 +3,7 @@
 This module provides an easy way to create and decorate angular $resource services from a config file. It also provides provides caching and pagination state decorators. This module was created with the following goals: clean, consistent API resources and easy to use caching and pagination.
 
 ### Version
-0.1.7
+0.1.8
 
 ### Installation and Setup
 
