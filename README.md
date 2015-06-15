@@ -1,9 +1,11 @@
+[![Build Status](https://travis-ci.org/Osedea/angular-osd-resource.svg?branch=master)](https://travis-ci.org/Osedea/angular-osd-form)
+
 # angular-osd-resource
 
 This module provides an easy way to create and decorate angular $resource services from a config file. It also provides provides caching and pagination state decorators. This module was created with the following goals: clean, consistent API resources and easy to use caching and pagination.
 
 ### Version
-0.1.10
+0.1.11
 
 ### Installation and Setup
 
