@@ -7,6 +7,8 @@ var gulp = require('gulp'),
     karma = require('gulp-karma'),
     babel = require('gulp-babel');
 
+var isTravis = process.env.TRAVIS || false;
+
 var paths = {
     js: [
         'src/app.js',
