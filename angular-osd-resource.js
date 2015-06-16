@@ -1,6 +1,7 @@
 (function() {
     var osdResource = angular.module('osdResource', [
-        'ngLodash'
+        'ngLodash',
+        'ngResource'
     ]);
 })();
 
