@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Osedea/angular-osd-resource.svg?branch=master)](https://travis-ci.org/Osedea/angular-osd-form)
+[![Build Status](https://travis-ci.org/Osedea/angular-osd-resource.svg?branch=master)](https://travis-ci.org/Osedea/angular-osd-resource)
 
 # angular-osd-resource
 
