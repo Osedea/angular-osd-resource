@@ -37,7 +37,7 @@
         cachedCalls = cachedCalls.concat($delegate.config.relations);
 
         // Clears all cached data for the given resource.
-        self.clearCache = function() {
+        decorator.clearCache = function() {
             self.caches[$delegate.config.name] = {};
         };
 
