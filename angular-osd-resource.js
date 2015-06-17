@@ -193,6 +193,11 @@
         // Add relation resources to the list of cached calls.
         cachedCalls = cachedCalls.concat($delegate.config.relations);
 
+        // Clears all cached data for the given resource.
+        self.clearCache = function() {
+            self.caches[$delegate.config.name] = {};
+        };
+
         function objectToString(obj) {
             var result = [];
 
@@ -206,6 +211,7 @@
         /*
          Simple hash function to convert string to integer. This is the java implementation of a
          hashing algorithm.
+
          Source: http://stackoverflow.com/a/7616484
          */
         function hash(str) {
@@ -301,22 +307,21 @@
             return $delegate[call](data);
         }
 
-        // We explicitely want new data. Don't use the cache for the next
-        // request.
+        // Set forced to true, the cache will not be used for the next call.
         decorator.setForced = function () {
             forced = true;
 
             return decorator;
         };
 
-        // Create decorator methods for all calls that require caching
+        // Create decorator methods for all calls that require caching.
         lodash.forEach(cachedCalls, function (call) {
             decorator[call] = function (params) {
                 return makeCachedCall(call, params);
             };
         });
 
-        // Create decorator methods for all calls that invalidate cache
+        // Create decorator methods for all calls that invalidate cache.
         lodash.forEach(cacheClearingCalls, function (call) {
             decorator[call] = function (data) {
                 return makeCacheClearingCall(call, data);
