@@ -5,7 +5,7 @@
 This module provides an easy way to create and decorate angular $resource services from a config file. It also provides provides caching and pagination state decorators. This module was created with the following goals: clean, consistent API resources and easy to use caching and pagination.
 
 ### Version
-0.1.14
+0.1.15
 
 ### Installation and Setup
 
@@ -137,6 +137,20 @@ When generating resources, we can decorate them with common functions. For examp
 The following decorators are available:
  - cache
  - paginate
+
+
+### Cache Decorator
+
+The cache decorator will automatically cache data being queried from your API. The cache will also clear itself if an item is saved or updated, ensuring that our data will not become outdated. There are extra functions provided with this decorator:
+
+```
+// The next call using the resource resource will not use the cache. Following calls will use the cache.
+CachedResource.setForced();
+
+// Clear the entire cache for this resource.
+CachedResource.clearCache();
+
+```
 
 
 ### Paginate Decorator
