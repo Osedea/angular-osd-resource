@@ -5,7 +5,7 @@
 This module provides an easy way to create and decorate angular $resource services from a config file. It also provides provides caching and pagination state decorators. This module was created with the following goals: clean, consistent API resources and easy to use caching and pagination.
 
 ### Version
-0.1.15
+0.1.16
 
 ### Installation and Setup
 
@@ -149,7 +149,13 @@ CachedResource.setForced();
 
 // Clear the entire cache for this resource.
 CachedResource.clearCache();
+```
 
+#### Events
+The cache decorator provides a single event listener for clearing all caches:
+
+```
+$rootScope.$on('osdResource.clearAllCaches');
 ```
 
 
