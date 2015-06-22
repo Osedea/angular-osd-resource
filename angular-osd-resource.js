@@ -167,7 +167,7 @@
 
      @ngInject
      */
-    function CacheDecorator($delegate, lodash) {
+    function CacheDecorator($rootScope, $delegate, lodash) {
         var decorator = {};
 
         var self = {
@@ -197,6 +197,10 @@
         decorator.clearCache = function() {
             self.caches[$delegate.config.name] = {};
         };
+
+        $rootScope.$on('osdResource.clearAllCaches', function (event) {
+            self.caches: {};
+        });
 
         function objectToString(obj) {
             var result = [];
