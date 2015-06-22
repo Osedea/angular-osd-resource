@@ -42,8 +42,8 @@
         };
 
         // Event for clearing all caches. Typical use is for after a user logs out.
-        $rootScope.$on('osdResource.clearAllCaches', function (event) {
-            self.caches: {};
+        $rootScope.$on('osdResource.cache.clearAll', function (event) {
+            self.caches = {};
         });
 
         function objectToString(obj) {

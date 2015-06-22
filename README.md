@@ -155,7 +155,7 @@ CachedResource.clearCache();
 The cache decorator provides a single event listener for clearing all caches:
 
 ```
-$rootScope.$on('osdResource.clearAllCaches');
+$rootScope.$on('osdResource.cache.clearAll');
 ```
 
 
